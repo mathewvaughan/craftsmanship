@@ -1,0 +1,8 @@
+import pytest 
+@pytest.fixture
+def plays():
+    return {
+        "hamlet": {"name": "Hamlet", "type": "tragedy"},
+        "as-like": {"name": "As You Like It", "type": "comedy"},
+        "othello": {"name": "Othello", "type": "tragedy"},
+    }
