@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "craftsmanship"
+version = "0.1.0"
+description = "Workshop for Craftsmanship. Credit to Refactoring by Martin Fowler for the example in this repository."
+authors = ["Mathew Vaughan <mathew.vaughan@eigentech.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Babel = "^2.9.1"
+pytest = "^7.1.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
