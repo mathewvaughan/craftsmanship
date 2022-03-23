@@ -1,10 +1,6 @@
 from babel.numbers import format_currency
 
 def statement(invoice, plays):
-    total_amount=0
-    volume_credits=0
-
-    result = f"Statement for {invoice['customer']}\n"
     usd = lambda x : format_currency(x, 'USD', locale='en_US')
 
     def play_for(perf):
@@ -31,6 +27,10 @@ def statement(invoice, plays):
             result += int(perf["audience"]/5)
         return result
     
+    total_amount=0
+    volume_credits=0
+
+    result = f"Statement for {invoice['customer']}\n"
     for perf in invoice["performances"]:
         volume_credits+=volume_credits_for(perf)
         result +=f"  {play_for(perf)['name']} : {usd(amount_for(perf)/100)} ({perf['audience']} seats)\n"
