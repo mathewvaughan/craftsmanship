@@ -10,25 +10,25 @@ def statement(invoice, plays):
     def play_for(perf):
         return plays[perf["playID"]]
 
-    def amount_for(performance, play):
+    def amount_for(performance):
         result=0
-        if play["type"] == "tragedy":
+        if play_for(perf)["type"] == "tragedy":
             result=40000
             if performance["audience"] > 30:
                 result += 1000*(performance['audience']-30)
-        elif play["type"] == "comedy":
+        elif play_for(perf)["type"] == "comedy":
             result = 30000
             if performance["audience"] > 20:
                 result +=10000+500*(performance['audience'] - 20)
             result += 300 * performance["audience"]
-        if play["type"] not in {"tragedy", "comedy"}:
-            raise ValueError("Unknown Play type: %s".format(play["type"]))
+        if play_for(perf)["type"] not in {"tragedy", "comedy"}:
+            raise ValueError("Unknown Play type: %s".format(play_for(perf)["type"]))
         return result
 
    
     
     for perf in invoice["performances"]:
-        this_amount = amount_for(perf, play_for(perf))
+        this_amount = amount_for(perf)
         # Add volume credits
         volume_credits+=max(perf['audience']-30,0)
         # add extra credit for every ten comedy attendees
