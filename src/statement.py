@@ -26,6 +26,12 @@ def statement(invoice, plays):
         if play_for(perf)["type"] == "comedy":
             result += int(perf["audience"]/5)
         return result
+
+    def total_volume_credits():
+        volume_credits=0
+        for perf in invoice["performances"]:
+            volume_credits+=volume_credits_for(perf)
+        return volume_credits
     
     result = f"Statement for {invoice['customer']}\n"
     
@@ -34,9 +40,9 @@ def statement(invoice, plays):
         result +=f"  {play_for(perf)['name']} : {usd(amount_for(perf)/100)} ({perf['audience']} seats)\n"
         total_amount += amount_for(perf)
     
-    volume_credits=0
-    for perf in invoice["performances"]:
-        volume_credits+=volume_credits_for(perf)
+    volume_credits = total_volume_credits()
     result+= f"Amount owed is {usd(total_amount/100)}\n"
     result+= f"You earned {volume_credits} credits\n"
     return result
+
+
