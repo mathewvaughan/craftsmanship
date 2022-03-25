@@ -1,6 +1,9 @@
 from babel.numbers import format_currency
 
 def statement(invoice, plays):
+    return plain_text(invoice, plays)
+
+def plain_text(invoice, plays):
     usd = lambda x : format_currency(x, 'USD', locale='en_US')
 
     def play_for(performance):
