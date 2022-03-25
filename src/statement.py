@@ -2,6 +2,9 @@ from babel.numbers import format_currency
 from copy import copy
 
 def statement(invoice, plays):
+    return plain_text(statement_data(invoice, plays))
+
+def statement_data(invoice, plays):
     def play_for(performance):
         return plays[performance["playID"]]
 
@@ -51,8 +54,7 @@ def statement(invoice, plays):
     }
     statement_data["total_amount"] = total_amount(statement_data)
     statement_data["total_credits"] = total_volume_credits(statement_data)
-
-    return plain_text(statement_data)
+    return statement_data
 
 def plain_text(data):
     usd = lambda x : format_currency(x, 'USD', locale='en_US')
