@@ -1,10 +1,15 @@
 from babel.numbers import format_currency
+from copy import copy
 
 def statement(invoice, plays):
+    def enrich_performance(performance):
+        return copy(performance)
+
     statement_data={
         "customer": invoice["customer"],
-        "performances": invoice["performances"]
+        "performances": [enrich_performance(performance) for performance in invoice["performances"]]
     }
+
     return plain_text(statement_data, plays)
 
 def plain_text(data, plays):
