@@ -5,21 +5,6 @@ def statement(invoice, plays):
     def play_for(performance):
         return plays[performance["playID"]]
 
-    def enrich_performance(performance):
-        result = copy(performance)
-        result["play"] = play_for(performance)
-        return result
-
-    statement_data={
-        "customer": invoice["customer"],
-        "performances": [enrich_performance(performance) for performance in invoice["performances"]]
-    }
-
-    return plain_text(statement_data)
-
-def plain_text(data):
-    usd = lambda x : format_currency(x, 'USD', locale='en_US')
-
     def amount_for(performance):
         result=0
         if performance["play"]["type"] == "tragedy":
@@ -34,6 +19,22 @@ def plain_text(data):
         if performance["play"]["type"] not in {"tragedy", "comedy"}:
             raise ValueError("Unknown Play type: %s".format(performance["play"]["type"]))
         return result
+
+    def enrich_performance(performance):
+        result = copy(performance)
+        result["play"] = play_for(result)
+        result["amount"] = amount_for(result)
+        return result
+
+    statement_data={
+        "customer": invoice["customer"],
+        "performances": [enrich_performance(performance) for performance in invoice["performances"]]
+    }
+
+    return plain_text(statement_data)
+
+def plain_text(data):
+    usd = lambda x : format_currency(x, 'USD', locale='en_US')
 
     def volume_credits_for(performance):
         result = max(performance['audience']-30,0)
@@ -50,12 +51,12 @@ def plain_text(data):
     def total_amount():
         result=0
         for performance in data["performances"]:
-            result += amount_for(performance)
+            result += performance["amount"]
         return result
 
     result = f"Statement for {data['customer']}\n"
     for perf in data["performances"]:
-        result +=f"  {perf['play']['name']} : {usd(amount_for(perf)/100)} ({perf['audience']} seats)\n"
+        result +=f"  {perf['play']['name']} : {usd(perf['amount']/100)} ({perf['audience']} seats)\n"
     result+= f"Amount owed is {usd(total_amount()/100)}\n"
     result+= f"You earned {total_volume_credits()} credits\n"
     return result
