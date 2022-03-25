@@ -48,13 +48,13 @@ def statement_data(invoice, plays):
             result += performance["amount"]
         return result
 
-    statement_data={
+    result={
         "customer": invoice["customer"],
         "performances": [enrich_performance(performance) for performance in invoice["performances"]]
     }
-    statement_data["total_amount"] = total_amount(statement_data)
-    statement_data["total_credits"] = total_volume_credits(statement_data)
-    return statement_data
+    result["total_amount"] = total_amount(result)
+    result["total_credits"] = total_volume_credits(result)
+    return result
 
 def plain_text(data):
     usd = lambda x : format_currency(x, 'USD', locale='en_US')
