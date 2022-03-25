@@ -32,34 +32,35 @@ def statement(invoice, plays):
         result["amount"] = amount_for(result)
         result["credits"] = volume_credits_for(result)
         return result
-
-    statement_data={
-        "customer": invoice["customer"],
-        "performances": [enrich_performance(performance) for performance in invoice["performances"]]
-    }
-
-    return plain_text(statement_data)
-
-def plain_text(data):
-    usd = lambda x : format_currency(x, 'USD', locale='en_US')
-
-    def total_volume_credits():
+    
+    def total_volume_credits(data):
         volume_credits=0
         for performance in data["performances"]:
             volume_credits+=performance["credits"]
         return volume_credits
     
-    def total_amount():
+    def total_amount(data):
         result=0
         for performance in data["performances"]:
             result += performance["amount"]
         return result
 
+    statement_data={
+        "customer": invoice["customer"],
+        "performances": [enrich_performance(performance) for performance in invoice["performances"]]
+    }
+    statement_data["total_amount"] = total_amount(statement_data)
+    statement_data["total_credits"] = total_volume_credits(statement_data)
+
+    return plain_text(statement_data)
+
+def plain_text(data):
+    usd = lambda x : format_currency(x, 'USD', locale='en_US')
     result = f"Statement for {data['customer']}\n"
     for perf in data["performances"]:
         result +=f"  {perf['play']['name']} : {usd(perf['amount']/100)} ({perf['audience']} seats)\n"
-    result+= f"Amount owed is {usd(total_amount()/100)}\n"
-    result+= f"You earned {total_volume_credits()} credits\n"
+    result+= f"Amount owed is {usd(data['total_amount']/100)}\n"
+    result+= f"You earned {data['total_credits']} credits\n"
     return result
 
 
