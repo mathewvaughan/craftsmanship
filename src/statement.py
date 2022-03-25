@@ -20,10 +20,17 @@ def statement(invoice, plays):
             raise ValueError("Unknown Play type: %s".format(performance["play"]["type"]))
         return result
 
+    def volume_credits_for(performance):
+        result = max(performance['audience']-30,0)
+        if performance["play"]["type"] == "comedy":
+            result += int(performance["audience"]/5)
+        return result
+
     def enrich_performance(performance):
         result = copy(performance)
         result["play"] = play_for(result)
         result["amount"] = amount_for(result)
+        result["credits"] = volume_credits_for(result)
         return result
 
     statement_data={
@@ -36,16 +43,10 @@ def statement(invoice, plays):
 def plain_text(data):
     usd = lambda x : format_currency(x, 'USD', locale='en_US')
 
-    def volume_credits_for(performance):
-        result = max(performance['audience']-30,0)
-        if performance["play"]["type"] == "comedy":
-            result += int(performance["audience"]/5)
-        return result
-
     def total_volume_credits():
         volume_credits=0
         for performance in data["performances"]:
-            volume_credits+=volume_credits_for(performance)
+            volume_credits+=performance["credits"]
         return volume_credits
     
     def total_amount():
