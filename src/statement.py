@@ -2,40 +2,42 @@ from babel.numbers import format_currency
 from copy import copy
 
 def statement(invoice, plays):
+    def play_for(performance):
+        return plays[performance["playID"]]
+
     def enrich_performance(performance):
-        return copy(performance)
+        result = copy(performance)
+        result["play"] = play_for(performance)
+        return result
 
     statement_data={
         "customer": invoice["customer"],
         "performances": [enrich_performance(performance) for performance in invoice["performances"]]
     }
 
-    return plain_text(statement_data, plays)
+    return plain_text(statement_data)
 
-def plain_text(data, plays):
+def plain_text(data):
     usd = lambda x : format_currency(x, 'USD', locale='en_US')
-
-    def play_for(performance):
-        return plays[performance["playID"]]
 
     def amount_for(performance):
         result=0
-        if play_for(performance)["type"] == "tragedy":
+        if performance["play"]["type"] == "tragedy":
             result=40000
             if performance["audience"] > 30:
                 result += 1000*(performance['audience']-30)
-        elif play_for(performance)["type"] == "comedy":
+        elif performance["play"]["type"] == "comedy":
             result = 30000
             if performance["audience"] > 20:
                 result +=10000+500*(performance['audience'] - 20)
             result += 300 * performance["audience"]
-        if play_for(performance)["type"] not in {"tragedy", "comedy"}:
-            raise ValueError("Unknown Play type: %s".format(play_for(performance)["type"]))
+        if performance["play"]["type"] not in {"tragedy", "comedy"}:
+            raise ValueError("Unknown Play type: %s".format(performance["play"]["type"]))
         return result
 
     def volume_credits_for(performance):
         result = max(performance['audience']-30,0)
-        if play_for(performance)["type"] == "comedy":
+        if performance["play"]["type"] == "comedy":
             result += int(performance["audience"]/5)
         return result
 
@@ -53,7 +55,7 @@ def plain_text(data, plays):
 
     result = f"Statement for {data['customer']}\n"
     for perf in data["performances"]:
-        result +=f"  {play_for(perf)['name']} : {usd(amount_for(perf)/100)} ({perf['audience']} seats)\n"
+        result +=f"  {perf['play']['name']} : {usd(amount_for(perf)/100)} ({perf['audience']} seats)\n"
     result+= f"Amount owed is {usd(total_amount()/100)}\n"
     result+= f"You earned {total_volume_credits()} credits\n"
     return result
