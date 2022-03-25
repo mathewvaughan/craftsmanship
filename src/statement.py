@@ -1,9 +1,13 @@
 from babel.numbers import format_currency
 
 def statement(invoice, plays):
-    return plain_text(invoice, plays)
+    statement_data={
+        "customer": invoice["customer"],
+        "performances": invoice["performances"]
+    }
+    return plain_text(statement_data, plays)
 
-def plain_text(invoice, plays):
+def plain_text(data, plays):
     usd = lambda x : format_currency(x, 'USD', locale='en_US')
 
     def play_for(performance):
@@ -32,18 +36,18 @@ def plain_text(invoice, plays):
 
     def total_volume_credits():
         volume_credits=0
-        for performance in invoice["performances"]:
+        for performance in data["performances"]:
             volume_credits+=volume_credits_for(performance)
         return volume_credits
     
     def total_amount():
         result=0
-        for performance in invoice["performances"]:
+        for performance in data["performances"]:
             result += amount_for(performance)
         return result
 
-    result = f"Statement for {invoice['customer']}\n"
-    for perf in invoice["performances"]:
+    result = f"Statement for {data['customer']}\n"
+    for perf in data["performances"]:
         result +=f"  {play_for(perf)['name']} : {usd(amount_for(perf)/100)} ({perf['audience']} seats)\n"
     result+= f"Amount owed is {usd(total_amount()/100)}\n"
     result+= f"You earned {total_volume_credits()} credits\n"
